@@ -1,5 +1,5 @@
 import zipfile
-
+from riskinnovation import settings
 class DocsUnzip:
     zip_file_name = ''
     document_directory = ''
@@ -13,6 +13,7 @@ class DocsUnzip:
         result = zip_ref.extractall(self.document_directory)
         zip_ref.close()
         return
-
-docs_unzip = DocsUnzip('data/documents.zip', 'data/documents')
+        
+bas_path = settings.BASE_DIR  + '/data/'
+docs_unzip = DocsUnzip(bas_path +'documents.zip', bas_path + 'documents')
 docs_unzip.extract_docs()

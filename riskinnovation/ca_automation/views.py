@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
+from riskinnovation import settings
 from .forms import CAAutomation
 from . import lib
+import subprocess
 
 def index(request):
     context = {}
@@ -14,6 +16,9 @@ def index(request):
             lib.handle_uploaded_file(mapping_file, 'mapping')
             lib.handle_uploaded_file(source_dump, 'source_dump')
             lib.handle_uploaded_file(docs, 'documents')
+            
+            subprocess.call(["python", settings.BASE_DIR+"/doc-unzip.py"])
+            
             return HttpResponseRedirect('dashboard')
         return HttpResponse(form.errors)
     context = {

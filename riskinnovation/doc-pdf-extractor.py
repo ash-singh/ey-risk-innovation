@@ -1,75 +1,36 @@
 import zipfile
 from xlrd import open_workbook
 import glob
-import re
 import csv
 import xlwt
+from ca_automation import lib
+from riskinnovation import settings
 
 class DocsPdfExtration:
-    sourceFileName = ''
-    sourceData = {}
-    documentsDirector = ''
+    source_file_name = ''
+    source_data = {}
+    document_directory = ''
 
-    def __init__(self, sourceFileName, documentDirectory):
-        self.sourceFileName = sourceFileName
-        self.documentDirectory = documentDirectory
-        self.metaDataFile = 'meta-data/processed-record.csv'
+    def __init__(self, source_file_name, document_directory):
+        self.source_file_name = source_file_name
+        self.document_directory = document_directory
+        self.meta_data_file = 'data/meta-data/processed-record.csv'
+        self.source_data = lib.get_source_data(source_file_name)
 
-    def getDocumentList(self):
-        docList = glob.glob(self.documentDirectory + '/*.pdf')
-        return docList
+    def get_document_list(self):
+        doc_list = glob.glob(self.document_directory + '/*.pdf')
+        return doc_list
 
-    def getSourceData(self):
-        wb = open_workbook(self.sourceFileName)
-        for sheet in wb.sheets():
-            number_of_rows = sheet.nrows
-            number_of_columns = sheet.ncols
-            rows = []
-            #reading headers
-            # For row 0 and column 0 
-            sheet.cell_value(0, 0) 
-            headers = []
-            for i in range(sheet.ncols): 
-                headers.append(sheet.cell_value(0, i))
-
-            for row in range(1, number_of_rows):
-                values = {}
-                reference_id = 0
-                for col in range(number_of_columns):
-                    value  = (sheet.cell(row,col).value)
-                    try:
-                        value = str(int(value))
-                    except ValueError:
-                        pass
-                    finally:
-                        if col == 1:
-                            reference_id = value
-                        values[headers[col]] = value
-                       
-                self.sourceData[reference_id] = values
-        return self.sourceData
-
-    @staticmethod 
-    def getFileName(file):
-        try:
-            filename = re.search('/(.+?).pdf', file).group(1)
-        except AttributeError:
-            filename = '' 
-        return filename   
-
-
-    def startProcessing(self):
-        self.getSourceData()
-       
-        dockList = self.getDocumentList()
-        self.processDocuments(dockList)
+    def start_processing(self):
+        dock_list = self.get_document_list()
+        self.process_documents(dock_list)
         return
     
-    def processDocuments(self, docList):
-        for doc in docList:
-            self.processDocument(doc)
+    def process_documents(self, dock_list):
+        for doc in dock_list:
+            self.process_document(doc)
 
-    def processDocument(self, doc):
+    def process_document(self, doc):
         self.start()
 
         self.end(doc)
@@ -78,10 +39,10 @@ class DocsPdfExtration:
         return
 
     def end(self, doc):
-        with open(self.metaDataFile, 'a', newline = '') as csvFile:
+        with open(self.meta_data_file, 'a', newline = '') as csvFile:
             csvWriter = csv.writer(csvFile, delimiter = ',')
-            csvWriter.writerow([self.getFileName(doc)])
+            csvWriter.writerow([lib.get_file_name(doc)])
 
-
-docsPdfExtration = DocsPdfExtration('System Dump.xlsx', 'documents')
-docsPdfExtration.startProcessing()
+bas_path = settings.BASE_DIR  + '/data/'
+docs_pdf_extration = DocsPdfExtration(bas_path +'source_dump.xlsx', bas_path + 'documents')
+docs_pdf_extration.start_processing()
