@@ -14,13 +14,12 @@ def index(request):
             lib.handle_uploaded_file(mapping_file, 'mapping')
             lib.handle_uploaded_file(source_dump, 'source_dump')
             lib.handle_uploaded_file(docs, 'documents')
-            return HttpResponseRedirect('dashboard/')
+            return HttpResponseRedirect('dashboard')
         return HttpResponse(form.errors)
     context = {
         'app_name' : 'CA Automation',
         'form' : CAAutomation()
     }
-    return HttpResponseRedirect('dashboard')
     return render(request, 'ca_automation/index.html', context)
 
 def dashboard(request):
