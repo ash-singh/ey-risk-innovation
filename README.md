@@ -1,4 +1,4 @@
-# FX Document Infomation Exctrator and Verifier (FX-DIEV)
+# FX Document Infomation Extractor and Verifier (FX-DIEV)
 
 Web application (django pyhon) to exracted the structed data from unstructed data (pdf documents) and verify it as per the system data.
 As soon as all the relevant documents are uploaded a background process will execute python scripts to perform preliminary verification of FX document.
