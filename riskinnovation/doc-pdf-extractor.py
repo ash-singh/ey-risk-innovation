@@ -10,10 +10,18 @@ import textract
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+from nltk.chunk import conlltags2tree, tree2conlltags
+from pprint import pprint
+
+
 
 #nltk.download('averaged_perceptron_tagger')
 #nltk.download('stopwords')
 #nltk.download('punkt')
+#nltk.download('maxent_treebank_pos_tagger')
+#nltk.download('maxent_ne_chunker')
+#nltk.download('words')
+
 
 class DocsPdfExtration:
     source_file_name = ''
@@ -70,13 +78,73 @@ class DocsPdfExtration:
         text = self.get_raw_document_content(doc)
         text = text.lower()
 
-        sentences = self.sentence_segmentation(text)
+        entities = self.extract_entities(text)
+        
+        return []
+    
+    def extract_entities(self, text):
+        text = nltk.word_tokenize(text)
+        text = nltk.pos_tag(text)
+        processed_text = nltk.ne_chunk(text)
+        
+        pattern = 'NP: {<DT>?<JJ>*<NN>}'
+        cp = nltk.RegexpParser(pattern)
+        cs = cp.parse(processed_text)
+        #print(cs)
+        iob_tagged = tree2conlltags(cs)
+        #pprint(iob_tagged)
+        nouns = []
+        amount = []
+        date = []
+        for word, pos, ner in iob_tagged:
+            if pos == 'NN':
+                nouns.append(word)
+            
+            if pos == 'CD':
+                amount.append(word)
 
-        sentences = self.tokenization(sentences)
-        sentences = self.part_of_speech_tagging(sentences)
-        print(sentences)
+            if pos == 'JJ' and ner == 'O':
+                date.append(word)
+        
+        print(nouns)
+
+
+    def extract_entities_nltk(self, doc):
+        sentences = nltk.sent_tokenize(text)
+        #sentences = self.tokenization(sentences)
+        #tagged_sentences = self.part_of_speech_tagging(sentences)
+        
+        tokenized_sentences = [nltk.word_tokenize(sentence) for sentence in sentences]
+        tagged_sentences = [nltk.pos_tag(sentence) for sentence in tokenized_sentences]
+        chunked_sentences = nltk.ne_chunk_sents(tagged_sentences, binary=True)
+        
+        entity_names = []
+        for tree in chunked_sentences:
+            print(tree)
+            entity_names.extend(self.extract_entity_names(tree))
        
-        return sentences
+       # Print all entity names
+        #print entity_names
+
+        # Print unique entity names
+        print(set(entity_names))
+
+    def extract_entity_names(self,t):
+        entity_names = []
+
+        if hasattr(t, 'label') and t.label:
+            if t.label() == 'NE':
+                entity_names.append(' '.join([child[0] for child in t]))
+            else:
+                for child in t:
+                    entity_names.extend(self.extract_entity_names(child))
+
+        return entity_names
+
+    def chunking(self, sentences):
+        pattern = 'NP: {<DT>?<JJ>*<NN>}'
+        cp = nltk.RegexpParser(pattern)
+        return [cp.parse(sent) for sent in sentences]
 
     def part_of_speech_tagging(self, sentences):
         return [nltk.pos_tag(sent) for sent in sentences]
