@@ -4,5 +4,12 @@
 Mapping File: {% if mapping_file %} Ok {% else %} Not Set {% endif %} <br>
 Source Dump: {% if source_dump %} Ok {% else %} Not Set {% endif %} <br>
 Documents: {% if documents %} Ok {% else %} Not Set {% endif %} <br>
+Status: {% if failed %} Passed {% else %} Failed {% endif %} <br>
+
+{% if processing %} 
+    Document Verification is in progress... 
+{% else %} 
+    <a class="btn btn-primary" href="/start-processing">Start Processing</a>
+{% endif %}
 
 {% endblock %}

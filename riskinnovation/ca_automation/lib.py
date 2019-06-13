@@ -2,6 +2,7 @@ from riskinnovation import settings
 from django.core.files.storage import FileSystemStorage
 import re
 from xlrd import open_workbook
+import os
 
 def handle_uploaded_file(file, type):
     file_path = settings.BASE_DIR  + '/data/' + file_name_with_extention(type)
@@ -15,6 +16,7 @@ def handle_uploaded_file(file, type):
 def file_type_exists(type):
     file_path = settings.BASE_DIR  + '/data/' + file_name_with_extention(type)
     fs = FileSystemStorage()
+    print(file_path)
     return fs.exists(file_path)
 
 def file_name_with_extention(type):
@@ -25,6 +27,11 @@ def file_name_with_extention(type):
         file_name = 'source_dump.xlsx'
     if type == 'documents':
         file_name = 'documents.zip'
+    if type == 'processing':
+        file_name = 'meta-data/processing.txt'
+    if type == 'failed':
+        file_name = 'meta-data/failed.txt'
+        
     return file_name
 
 def get_file_name(file):
@@ -64,3 +71,9 @@ def get_source_data(source_file_name):
                        
                 source_data[reference_id] = values
         return source_data
+
+def remove_file(file_name):
+    if os.path.exists(file_name):
+        os.remove(file_name)
+    else:
+        print("The file does not exist")

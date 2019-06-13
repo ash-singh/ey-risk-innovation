@@ -28,12 +28,20 @@ def index(request):
     return render(request, 'ca_automation/index.html', context)
 
 def dashboard(request):
-
     context = {
         'mapping_file' : lib.file_type_exists('mapping_file'),
         'source_dump' : lib.file_type_exists('source_dump'),
         'documents' : lib.file_type_exists('documents'),
+        'processing' : lib.file_type_exists('processing'),
+        'failed' : lib.file_type_exists('failed'),
     }
-    print(context)
+    
     return render(request, 'ca_automation/dashboard.html', context)
 
+def start_processing(request):
+    subprocess.call(["python", settings.BASE_DIR+"/doc-initial-verification.py"])
+    return HttpResponseRedirect('dashboard')
+
+def report(request):
+    context = {}
+    return render(request, 'ca_automation/report.html', context)
