@@ -4,8 +4,11 @@
 Mapping File: {% if mapping_file %} Ok {% else %} Not Set {% endif %} <br>
 Source Dump: {% if source_dump %} Ok {% else %} Not Set {% endif %} <br>
 Documents: {% if documents %} Ok {% else %} Not Set {% endif %} <br>
-Status: {% if failed %} Passed {% else %} Failed {% endif %} <br>
+Status: {% if failed %} Failed {% endif %} {% if success %} Success {% endif %} <br>
 
+<br>
+<br>
+<br>
 {% if processing %} 
     Document Verification is in progress... 
 {% else %} 

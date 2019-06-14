@@ -5,8 +5,8 @@ from .forms import CAAutomation
 from . import lib
 import subprocess
 
+
 def index(request):
-    context = {}
     if request.method == 'POST':
         form = CAAutomation(request.POST, request.FILES)
         if form.is_valid():
@@ -22,25 +22,29 @@ def index(request):
             return HttpResponseRedirect('dashboard')
         return HttpResponse(form.errors)
     context = {
-        'app_name' : 'CA Automation',
-        'form' : CAAutomation()
+        'app_name': 'CA Automation',
+        'form': CAAutomation()
     }
     return render(request, 'ca_automation/index.html', context)
 
+
 def dashboard(request):
     context = {
-        'mapping_file' : lib.file_type_exists('mapping_file'),
-        'source_dump' : lib.file_type_exists('source_dump'),
-        'documents' : lib.file_type_exists('documents'),
-        'processing' : lib.file_type_exists('processing'),
-        'failed' : lib.file_type_exists('failed'),
+        'mapping_file': lib.file_type_exists('mapping_file'),
+        'source_dump': lib.file_type_exists('source_dump'),
+        'documents': lib.file_type_exists('documents'),
+        'processing': lib.file_type_exists('processing'),
+        'failed': lib.file_type_exists('failed'),
+        'success': lib.file_type_exists('success'),
     }
     
     return render(request, 'ca_automation/dashboard.html', context)
 
+
 def start_processing(request):
     subprocess.call(["python", settings.BASE_DIR+"/doc-initial-verification.py"])
     return HttpResponseRedirect('dashboard')
+
 
 def report(request):
     context = {}

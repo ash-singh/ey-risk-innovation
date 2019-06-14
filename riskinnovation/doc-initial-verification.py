@@ -3,17 +3,17 @@ from xlrd import open_workbook
 import glob
 from ca_automation import lib
 
+
 class DocsInitialVerification:
     source_dump_file_name = ''
     source_data = {}
     document_directory = ''
     processing_file_pointer = ''
-    failed_file_pointer = ''
     processing_file_name = ''
     failed_file_name = ''
     success_file_name = ''
     isFailed = False
-
+    
     def __init__(self, source_dump_file_name, document_directory):
         self.source_dump_file_name = source_dump_file_name
         self.document_directory = document_directory
@@ -22,42 +22,49 @@ class DocsInitialVerification:
         self.failed_file_name = 'data/meta-data/failed.txt'
         self.success_file_name = 'data/meta-data/success.txt'
 
+    def process(self):
+        self.start()
+        self.initial_doc_verification()
+        self.end()
 
     def initial_doc_verification(self):
-        # check doc count === source data element count
-        # ref id of each doc exists in source data  
-
-        self.start()
-        file_list = glob.glob(self.document_directory + '/*.pdf')
+        failed_doc_ref_id = []
+        doc_list = glob.glob(self.document_directory + '/*.pdf')
         reference_ids = self.source_data.keys()
-        if len(file_list) != len(reference_ids):
-            pass
-            #raise Exception('Record count doesn\' match')
-        
-        for file in file_list:
-            file_name = lib.get_file_name(file)
-            if file_name not in reference_ids:
-                self.isFailed = True
-                self.failedFile.write("Document %s has invalid ref id\r\n" % (file))
-        return
-    
-    def start(self):
-       self.processing_file_pointer = open(self.processing_file_name,"w+")
-       self.failed_file_pointer = open(self.failed_file_name,"w+")
-       
 
+        if False and len(doc_list) != len(reference_ids):
+            self.isFailed = True
+            failed_file_pointer = open(self.failed_file_name, "w+")
+            failed_file_pointer.write('Records count dont match\n')
+            failed_file_pointer.close()
+            return
+
+        for doc in doc_list:
+            doc_reference_id = lib.get_reference_id_from_file_name(doc)
+            if doc_reference_id not in reference_ids:
+                self.isFailed = True
+                failed_doc_ref_id.append(doc_reference_id)
+            
+        if self.isFailed:
+            failed_file_pointer = open(self.failed_file_name, "w+")
+            failed_file_pointer.write("Following Documents has invalid ref \n")
+            for invalid_ref_id in failed_doc_ref_id:
+                failed_file_pointer.write(" %s \r\n" % invalid_ref_id)
+            failed_file_pointer.close()
+
+    def start(self):
+        self.processing_file_pointer = open(self.processing_file_name, "w+")
+        lib.remove_file(self.failed_file_name)
+        lib.remove_file(self.success_file_name)
+       
     def end(self):
         self.processing_file_pointer.close()
-        self.failed_file_pointer.close()
-        if (self.isFailed):
-            lib.remove_file(processing_file_name)
-        else:
-            lib.remove_file(processing_file_name)
-            lib.remove_file(failed_file_name)
+        lib.remove_file(self.processing_file_name)
+
+        if self.isFailed is False:
             success_file_pointer = open(self.success_file_name,"w+")
             success_file_pointer.close()
 
-        
 
 docs_unzip = DocsInitialVerification('data/source_dump.xlsx', 'data/documents')
-docs_unzip.initial_doc_verification()
+docs_unzip.process()
