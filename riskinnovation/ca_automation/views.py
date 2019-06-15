@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from riskinnovation import settings
 from .forms import CAAutomation
 from . import lib
 import subprocess
+import os
 
 
 def index(request):
@@ -45,9 +46,25 @@ def dashboard(request):
     return render(request, 'ca_automation/dashboard.html', context)
 
 
-def start_processing(request):
+def start_initial_processing(request):
     subprocess.call(["python", settings.BASE_DIR+"/doc-initial-verification.py"])
     return HttpResponseRedirect('dashboard')
+
+
+def start_initial_complete_processing(request):
+    subprocess.call(["python", settings.BASE_DIR+"/doc-complete-verification.py"])
+    return HttpResponseRedirect('dashboard')
+
+
+def download(request, file_type):
+    file_path = lib.get_file_path(file_type)
+    print(file_path)
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+            return response
+    raise Http404
 
 
 def report(request):

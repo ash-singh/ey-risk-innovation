@@ -1,5 +1,3 @@
-import zipfile
-from xlrd import open_workbook
 import glob
 from ca_automation import lib
 

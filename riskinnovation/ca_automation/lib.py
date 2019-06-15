@@ -22,6 +22,10 @@ def file_type_exists(file_type):
     return fs.exists(file_path)
 
 
+def get_file_path(file_type):
+    return settings.BASE_DIR + '/data/' + file_name_with_extension(file_type)
+
+
 def file_name_with_extension(file_type):
 
     file_type_mapping = {
