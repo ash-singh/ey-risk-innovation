@@ -1,18 +1,22 @@
 {% extends 'ca_automation/base.html' %}
 
 {% block content %}
-Mapping File: {% if mapping_file %} Ok {% else %} Not Set {% endif %} <br>
-Source Dump: {% if source_dump %} Ok {% else %} Not Set {% endif %} <br>
-Documents: {% if documents %} Ok {% else %} Not Set {% endif %} <br>
+Mapping File: {% if mapping %} Ok {% else %} Not Set {% endif %} <br>
+Source Dump: {% if source_dump %} Ok {{ source_dump_count }} record found{% else %} Not Set {% endif %} <br>
+Documents: {% if documents %} Ok {{ documents_count }} found {% else %} Not Set {% endif %} <br>
 Status: {% if failed %} Failed {% endif %} {% if success %} Success {% endif %} <br>
 
 <br>
 <br>
 <br>
-{% if processing %} 
-    Document Verification is in progress... 
-{% else %} 
-    <a class="btn btn-primary" href="/start-processing">Start Processing</a>
-{% endif %}
+    {% if processing %}
+        Document Initial Verification is in progress...
+    {% else %}
+        {% if mapping and source_dump and documents %}
+            <a class="btn btn-primary" href="/start-processing">Start Initial Verification</a>
+        {% else %}
+            <a class="btn btn-primary" href="/"> Please upload all the documents here</a>
+        {% endif %}
+    {% endif %}
 
 {% endblock %}

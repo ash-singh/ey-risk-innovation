@@ -30,14 +30,18 @@ def index(request):
 
 def dashboard(request):
     context = {
-        'mapping_file': lib.file_type_exists('mapping_file'),
+        'mapping': lib.file_type_exists('mapping'),
         'source_dump': lib.file_type_exists('source_dump'),
         'documents': lib.file_type_exists('documents'),
         'processing': lib.file_type_exists('processing'),
         'failed': lib.file_type_exists('failed'),
         'success': lib.file_type_exists('success'),
     }
-    
+    if context['documents']:
+        context['documents_count'] = lib.get_docs_count('data/documents')
+    if context['source_dump']:
+        context['source_dump_count'] = lib.get_source_dump_record_count()
+
     return render(request, 'ca_automation/dashboard.html', context)
 
 

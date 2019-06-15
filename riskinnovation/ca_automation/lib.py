@@ -3,10 +3,11 @@ from django.core.files.storage import FileSystemStorage
 import re
 from xlrd import open_workbook
 import os
+import fnmatch
 
 
-def handle_uploaded_file(file, type):
-    file_path = settings.BASE_DIR  + '/data/' + file_name_with_extension(type)
+def handle_uploaded_file(file, file_type):
+    file_path = settings.BASE_DIR + '/data/' + file_name_with_extension(file_type)
     fs = FileSystemStorage()
 
     if fs.exists(file_path):
@@ -15,13 +16,13 @@ def handle_uploaded_file(file, type):
     fs.save(file_path, file)
 
 
-def file_type_exists(type):
-    file_path = settings.BASE_DIR + '/data/' + file_name_with_extension(type)
+def file_type_exists(file_type):
+    file_path = settings.BASE_DIR + '/data/' + file_name_with_extension(file_type)
     fs = FileSystemStorage()
     return fs.exists(file_path)
 
 
-def file_name_with_extension(type):
+def file_name_with_extension(file_type):
 
     file_type_mapping = {
         'mapping': 'mapping.xlsx',
@@ -32,7 +33,7 @@ def file_name_with_extension(type):
         'success': 'meta-data/success.txt'
     }
         
-    return file_type_mapping.get(type, '')
+    return file_type_mapping.get(file_type, 'not_found')
 
 
 def get_reference_id_from_file_name(file):
@@ -61,7 +62,7 @@ def get_source_data(source_file_name):
             values = {}
             reference_id = 0
             for col in range(number_of_columns):
-                value  = (sheet.cell(row,col).value)
+                value = sheet.cell(row, col).value
                 try:
                     value = str(int(value))
                 except ValueError:
@@ -80,3 +81,20 @@ def remove_file(file_name):
         os.remove(file_name)
     else:
         print("The file does not exist")
+
+
+def get_docs_count(location):
+    location = settings.BASE_DIR + '/' + location
+    if os.path.exists(location):
+        return len(fnmatch.filter(os.listdir(location), '*.pdf'))
+
+    return 0
+
+
+def get_source_dump_record_count():
+    location = settings.BASE_DIR + '/data/source_dump.xlsx'
+    wb = open_workbook(location)
+    sheet = wb.sheet_by_index(0)
+    sheet.cell_value(0, 0)
+    return sheet.nrows - 1
+
