@@ -34,7 +34,9 @@ def file_name_with_extension(file_type):
         'documents': 'documents.zip',
         'processing': 'meta-data/processing.txt',
         'failed': 'meta-data/failed.txt',
-        'success': 'meta-data/success.txt'
+        'success': 'meta-data/success.txt',
+        'document_export': 'meta-data/document_export.csv',
+        'processed_record': 'meta-data/processed_records.csv',
     }
         
     return file_type_mapping.get(file_type, 'not_found')
@@ -80,11 +82,31 @@ def get_source_data(source_file_name):
     return source_data
 
 
+def get_mapping_data(file_path):
+    mapping_data = {}
+    wb = open_workbook(file_path)
+    sheet = wb.sheet_by_index(0)
+    sheet.cell_value(0, 0)
+    headers = []
+
+    for i in range(sheet.ncols):
+        if i is not 1:
+            headers.append(sheet.cell_value(0, i))
+
+    for col in range(len(headers)):
+        val = []
+        for i in range(sheet.nrows):
+            val.append(sheet.cell_value(i, col))
+        mapping_data[headers[col]] = val
+
+    return mapping_data
+
+
 def remove_file(file_name):
     if os.path.exists(file_name):
         os.remove(file_name)
     else:
-        print("The file does not exist")
+        print("File does not exist: %s" % file_name)
 
 
 def get_docs_count(location):

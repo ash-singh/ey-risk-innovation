@@ -60,7 +60,7 @@ class DocsInitialVerification:
         lib.remove_file(self.processing_file_name)
 
         if self.isFailed is False:
-            success_file_pointer = open(self.success_file_name,"w+")
+            success_file_pointer = open(self.success_file_name, "w+")
             success_file_pointer.close()
 
 

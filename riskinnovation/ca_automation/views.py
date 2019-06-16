@@ -47,18 +47,17 @@ def dashboard(request):
 
 
 def start_initial_processing(request):
-    subprocess.call(["python", settings.BASE_DIR+"/doc-initial-verification.py"])
+    subprocess.Popen(["python", settings.BASE_DIR+"/doc-initial-verification.py"])
     return HttpResponseRedirect('dashboard')
 
 
-def start_initial_complete_processing(request):
-    subprocess.call(["python", settings.BASE_DIR+"/doc-complete-verification.py"])
-    return HttpResponseRedirect('dashboard')
+def start_complete_processing(request):
+    subprocess.Popen(["python", settings.BASE_DIR+"/doc-pdf-extractor.py"])
+    return HttpResponseRedirect('report')
 
 
 def download(request, file_type):
     file_path = lib.get_file_path(file_type)
-    print(file_path)
     if os.path.exists(file_path):
         with open(file_path, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
@@ -68,5 +67,10 @@ def download(request, file_type):
 
 
 def report(request):
-    context = {}
+    context = {
+        'document_export': True,
+        'processing': lib.file_type_exists('processing'),
+        'failed': lib.file_type_exists('failed'),
+        'success': lib.file_type_exists('success'),
+    }
     return render(request, 'ca_automation/report.html', context)

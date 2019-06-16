@@ -1,10 +1,12 @@
 {% extends 'ca_automation/base.html' %}
 
 {% block content %}
-Mapping File: {% if mapping %} Ok {% else %} Not Set {% endif %} <br>
-Source Dump: {% if source_dump %} Ok {{ source_dump_count }} record found{% else %} Not Set {% endif %} <br>
-Documents: {% if documents %} Ok {{ documents_count }} found {% else %} Not Set {% endif %} <br>
-Status:
+    <h2> Initial Verification</h2>
+
+    Mapping File: {% if mapping %} Ok {% else %} Not Set {% endif %} <br>
+    Source File: {% if source_dump %} Ok {{ source_dump_count }} record found{% else %} Not Set {% endif %} <br>
+    Documents: {% if documents %} Ok {{ documents_count }} found {% else %} Not Set {% endif %} <br>
+    Status:
     {% if failed %}
         Failed => <a class="btn" href="/download/failed"> Download Failure File</a>
     {% endif %}
@@ -15,7 +17,7 @@ Status:
 <br>
 <br>
     {% if processing %}
-        Document Initial Verification is in progress...
+        Progressing please check after sometime...
     {% else %}
         {% if mapping and source_dump and documents %}
             <a class="btn btn-primary" href="/start-initial-processing">Start Initial Verification</a> >
