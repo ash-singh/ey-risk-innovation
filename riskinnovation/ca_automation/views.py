@@ -1,12 +1,13 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from riskinnovation import settings
 from .forms import CAAutomation
 from . import lib
 import subprocess
+import os
+
 
 def index(request):
-    context = {}
     if request.method == 'POST':
         form = CAAutomation(request.POST, request.FILES)
         if form.is_valid():
@@ -22,18 +23,54 @@ def index(request):
             return HttpResponseRedirect('dashboard')
         return HttpResponse(form.errors)
     context = {
-        'app_name' : 'CA Automation',
-        'form' : CAAutomation()
+        'app_name': 'CA Automation',
+        'form': CAAutomation()
     }
     return render(request, 'ca_automation/index.html', context)
 
-def dashboard(request):
 
+def dashboard(request):
     context = {
-        'mapping_file' : lib.file_type_exists('mapping_file'),
-        'source_dump' : lib.file_type_exists('source_dump'),
-        'documents' : lib.file_type_exists('documents'),
+        'mapping': lib.file_type_exists('mapping'),
+        'source_dump': lib.file_type_exists('source_dump'),
+        'documents': lib.file_type_exists('documents'),
+        'processing': lib.file_type_exists('processing'),
+        'failed': lib.file_type_exists('failed'),
+        'success': lib.file_type_exists('success'),
     }
-    print(context)
+    if context['documents']:
+        context['documents_count'] = lib.get_docs_count('data/documents')
+    if context['source_dump']:
+        context['source_dump_count'] = lib.get_source_dump_record_count()
+
     return render(request, 'ca_automation/dashboard.html', context)
 
+
+def start_initial_processing(request):
+    subprocess.Popen(["python", settings.BASE_DIR+"/doc-initial-verification.py"])
+    return HttpResponseRedirect('dashboard')
+
+
+def start_complete_processing(request):
+    subprocess.Popen(["python", settings.BASE_DIR+"/doc-pdf-extractor.py"])
+    return HttpResponseRedirect('report')
+
+
+def download(request, file_type):
+    file_path = lib.get_file_path(file_type)
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+            return response
+    raise Http404
+
+
+def report(request):
+    context = {
+        'document_export': True,
+        'processing': lib.file_type_exists('processing'),
+        'failed': lib.file_type_exists('failed'),
+        'success': lib.file_type_exists('success'),
+    }
+    return render(request, 'ca_automation/report.html', context)

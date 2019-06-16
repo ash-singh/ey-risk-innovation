@@ -1,0 +1,24 @@
+{% extends 'ca_automation/base.html' %}
+
+{% block content %}
+    <h2> Report</h2>
+Mapping File: <a class="btn" href="/download/mapping"> Download </a> <br>
+Source Dump: <a class="btn" href="/download/source_dump"> Download </a> <br>
+Document Export : {% if document_export %} <a class="btn" href="/download/document_export"> Download </a> {% endif %} <br>
+
+{% if failed %}
+    Failed => <a class="btn" href="/download/failed"> Download Failure File</a>
+{% endif %}
+
+{% if success %} Success {% endif %} <br>
+
+<br>
+<br>
+<br>
+    {% if processing %}
+        Progressing please check after sometime...
+    {% else %}
+        <a class="btn btn-primary" href="/start-complete-processing">Start Complete Verification</a>
+    {% endif %}
+
+{% endblock %}
