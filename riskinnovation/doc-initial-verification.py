@@ -30,7 +30,7 @@ class DocsInitialVerification:
         doc_list = glob.glob(self.document_directory + '/*.pdf')
         reference_ids = self.source_data.keys()
 
-        if False and len(doc_list) != len(reference_ids):
+        if len(doc_list) != len(reference_ids):
             self.isFailed = True
             failed_file_pointer = open(self.failed_file_name, "w+")
             failed_file_pointer.write('Records count dont match\n')

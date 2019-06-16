@@ -147,17 +147,8 @@ class DocsPdfExtraction:
                 print(word + ' not found')  
             
     def extract_document_data(self, doc):
-        # text = self.get_raw_document_content(doc)
-        # text = text.lower()
-        # with open(self.test_text_file_path, 'w+') as fp:
-        #     fp.write(text)
-
-        text = []
-        with open(self.test_text_file_path, 'r') as fp:
-            text = fp.read()
-
+        text = self.get_raw_document_content(doc)
         reference_id = lib.get_reference_id_from_file_name(doc)
-
         counter_party_name = self.get_company_name(text)
         trade_date = self.get_trade_date(text)
         settlement_date = self.get_settlement_date(text)
