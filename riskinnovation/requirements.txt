@@ -1,7 +1,7 @@
 argcomplete==1.8.2
 beautifulsoup4==4.5.3
 chardet==2.3.0
-Django==2.2.2
+Django==2.2.13
 docx2txt==0.6
 EbookLib==0.15
 lxml==4.3.4
